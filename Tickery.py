@@ -143,7 +143,7 @@ class Tickery:
 
     @staticmethod
     def main():
-        print("Tickery")
+        print("Starting Tickery...")
 
         # Obtain reddit object
         reddit = praw.Reddit(
@@ -155,15 +155,19 @@ class Tickery:
         subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
         # Start gathering submissions
+        print("Gathering content...")
         gather_submissions(subreddit)
 
         # Start searching for tickers
+        print("Parsing data...")
         parse_data()
 
         # Clean the data
+        print("Cleaning the data...")
         clean_data()
 
         # Save data in a JSON file
+        print("Saving the data...")
         save_data()
 
 
