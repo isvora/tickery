@@ -1,6 +1,8 @@
 import datetime
+import pickle
 import re
 
+import jsonpickle
 import praw
 
 from constants.Credentials import API
@@ -122,6 +124,17 @@ def clean_data():
             re.sub(r'[^\w\s]', '', comment.body)
 
 
+# Save data in JSON format for later use
+def save_data():
+    json_list = []
+    for ticker_data in TICKERDATA:
+        json_obj = jsonpickle.encode(ticker_data)
+        json_list.append(json_obj)
+
+    with open('data.json', 'wb') as fp:
+        pickle.dump(json_list, fp)
+
+
 class Tickery:
 
     @staticmethod
@@ -145,6 +158,9 @@ class Tickery:
 
         # Clean the data
         clean_data()
+
+        # Save data in a JSON file
+        save_data()
 
 
 if __name__ == "__main__":
