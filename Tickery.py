@@ -108,6 +108,20 @@ def parse_data():
                                         submissions=submissions))
 
 
+# Clean the data
+def clean_data():
+    for ticker_data in TICKERDATA:
+
+        # Loop through all submissions and clean the data
+        for submission in ticker_data.submissions:
+            re.sub(r'[^\w\s]', '', submission.title)
+            re.sub(r'[^\w\s]', '', submission.selftext)
+
+        # Loop through all comments and clean the data
+        for comment in ticker_data.comments:
+            re.sub(r'[^\w\s]', '', comment.body)
+
+
 class Tickery:
 
     @staticmethod
@@ -128,6 +142,9 @@ class Tickery:
 
         # Start searching for tickers
         parse_data()
+
+        # Clean the data
+        clean_data()
 
 
 if __name__ == "__main__":
