@@ -126,11 +126,15 @@ def clean_data():
 
 # Save data in JSON format for later use
 def save_data():
+    # List of TickerData objects in string JSON format
     json_list = []
+
+    # Use jsonpickle to create JSON strings from the object
     for ticker_data in TICKERDATA:
         json_obj = jsonpickle.encode(ticker_data)
         json_list.append(json_obj)
 
+    # Pickle data for later
     with open('data.json', 'wb') as fp:
         pickle.dump(json_list, fp)
 
