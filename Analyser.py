@@ -61,6 +61,38 @@ def sentiment_analysis(text, upvote):
         return pos * upvote
 
 
+# Analyse the data
+def analyse_data(ticker_data_list):
+    for ticker_data in ticker_data_list:
+
+        # The sentiment score for this ticker
+        final_score = 0
+
+        # Number of mentions for the ticker
+        nr_of_comments = 0
+        nr_of_submissions = 0
+
+        for submission in ticker_data.submissions:
+            score = 0
+            if ticker_data.ticker in submission.title:
+                score = sentiment_analysis(submission.title, submission.upvotes)
+            if ticker_data.ticker in submission.selftext:
+                score = sentiment_analysis(submission.selftext, submission.upvotes)
+            final_score = final_score + score
+
+        for comment in ticker_data.comments:
+            score = sentiment_analysis(comment.body, comment.ups)
+            final_score = final_score + score
+
+        nr_of_comments = ticker_data.number_of_occurrences_per_comment()
+        nr_of_submissions = ticker_data.number_of_occurrences_per_submission()
+
+        visual_final_score = "%.2f" % final_score
+
+        print(ticker_data.ticker + " : " + visual_final_score + " Comments: " + str(
+            nr_of_comments) + " Submissions: " + str(nr_of_submissions))
+
+
 class Analyser:
 
     @staticmethod
@@ -73,22 +105,8 @@ class Analyser:
         # Update the vader sentiment lexicon
         update_lexicon()
 
-        for ticker_data in ticker_data_list:
-            final_score = 0
-
-            for submission in ticker_data.submissions:
-                score = 0
-                if ticker_data.ticker in submission.title:
-                    score = sentiment_analysis(submission.title, submission.upvotes)
-                if ticker_data.ticker in submission.selftext:
-                    score = sentiment_analysis(submission.selftext, submission.upvotes)
-                final_score = final_score + score
-
-            for comment in ticker_data.comments:
-                score = sentiment_analysis(comment.body, comment.ups)
-                final_score = final_score + score
-
-            print(ticker_data.ticker + " : " + str(final_score))
+        # Analyse data
+        analyse_data(ticker_data_list)
 
 
 if __name__ == "__main__":
