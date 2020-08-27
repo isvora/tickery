@@ -31,6 +31,22 @@ def remove_stop_words(content_list):
     return final_list
 
 
+# Update lexicon
+def update_lexicon():
+    new_words = {
+        'bull': 3.0,
+        'call': 3.0,
+        'calls': 3.0,
+        'put': -3.0,
+        'bear': -3.0,
+    }
+
+    SIA = SentimentIntensityAnalyzer()
+
+    SIA.lexicon.update(new_words)
+
+
+# Calculate sentiment analysis
 def sentiment_analysis(text, upvote):
     score = SentimentIntensityAnalyzer().polarity_scores(text)
     neg = score['neg']
@@ -51,7 +67,11 @@ class Analyser:
     def main():
         print("Analysing data...")
 
+        # Load the data from the json file
         ticker_data_list = load_data()
+
+        # Update the vader sentiment lexicon
+        update_lexicon()
 
         for ticker_data in ticker_data_list:
             final_score = 0
