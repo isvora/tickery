@@ -73,7 +73,7 @@ def gather_comments(submission):
 def gather_submissions(subreddit):
     # Parse the specified number of submissions from the subreddit in the hot category
     for submission in subreddit.hot(limit=NR_OF_SUBMISSIONS):
-        if "Discussion" not in submission.title and submission_is_valid(submission):
+        if submission_is_valid(submission):
             comments = gather_comments(submission)
 
             # Create a Submission object and add it to the SUBMISSIONS list
