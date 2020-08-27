@@ -69,8 +69,8 @@ def analyse_data(ticker_data_list):
         final_score = 0
 
         # Number of mentions for the ticker
-        nr_of_comments = 0
-        nr_of_submissions = 0
+        nr_of_comments = ticker_data.number_of_occurrences_per_comment()
+        nr_of_submissions = ticker_data.number_of_occurrences_per_submission()
 
         for submission in ticker_data.submissions:
             score = 0
@@ -84,9 +84,7 @@ def analyse_data(ticker_data_list):
             score = sentiment_analysis(comment.body, comment.ups)
             final_score = final_score + score
 
-        nr_of_comments = ticker_data.number_of_occurrences_per_comment()
-        nr_of_submissions = ticker_data.number_of_occurrences_per_submission()
-
+        # Visualise only the first 2 digits after the dot
         visual_final_score = "%.2f" % final_score
 
         print(ticker_data.ticker + " : " + visual_final_score + " Comments: " + str(
