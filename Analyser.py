@@ -66,6 +66,12 @@ def sentiment_analysis(text, upvote):
 def analyse_data(ticker_data_list):
     for ticker_data in ticker_data_list:
 
+        # Calls for this ticker
+        calls = []
+
+        # Puts for this ticker
+        puts = []
+
         # The sentiment score for this ticker
         final_score = 0
 
@@ -74,22 +80,66 @@ def analyse_data(ticker_data_list):
         nr_of_submissions = ticker_data.number_of_occurrences_per_submission()
 
         for submission in ticker_data.submissions:
+
             score = 0
+
             if ticker_data.ticker in submission.title:
+                # Calculate the sentiment of the submission title
                 score = sentiment_analysis(submission.title, submission.upvotes)
+
+                # Check for call/put options mentioned in the submission title
+                call = call_screener(ticker_data.ticker, submission.title)
+                put = put_screener(ticker_data.ticker, submission.title)
+
+                # If any are found, append them to the list
+                if call is not None:
+                    calls.append(call)
+
+                if put is not None:
+                    puts.append(put)
+
             if ticker_data.ticker in submission.selftext:
+                # Calculate the sentiment of the submission body
                 score = sentiment_analysis(submission.selftext, submission.upvotes)
+
+                # Check for call/put options mentioned in the submission body
+                call = call_screener(ticker_data.ticker, submission.selftext)
+                put = put_screener(ticker_data.ticker, submission.selftext)
+
+                # If any are found, append them to the list
+                if call is not None:
+                    calls.append(call)
+
+                if put is not None:
+                    puts.append(put)
+
+            # Add the score to the final score of the ticker
             final_score = final_score + score
 
         for comment in ticker_data.comments:
+            # Calculate the sentiment of the comment
             score = sentiment_analysis(comment.body, comment.ups)
+
+            # Check for call/put options mentioned in the comment
+            call = call_screener(ticker_data.ticker, comment.body)
+            put = put_screener(ticker_data.ticker, comment.body)
+
+            # If any are found, append them to the list
+            if call is not None:
+                calls.append(call)
+
+            if put is not None:
+                puts.append(put)
+
+            # Add the score to the final score of the ticker
             final_score = final_score + score
 
         # Visualise only the first 2 digits after the dot
         visual_final_score = "%.2f" % final_score
 
-        print(ticker_data.ticker + " : \t" + visual_final_score + " \tComments: \t" + str(
-            nr_of_comments) + " \tSubmissions: \t" + str(nr_of_submissions))
+        print(ticker_data.ticker + ": \t" + visual_final_score + " \tComments: " + str(
+            nr_of_comments) + " \tSubmissions: " + str(nr_of_submissions) + " \tCalls: " + ' '.join(calls) +
+              " \tPuts: " + ' '.join(puts))
 
 
 # Search for the given regex in the given string and return it if it's found
@@ -107,53 +157,16 @@ def create_regex(ticker, option):
     return "(" + ticker + ") [0-9]*" + option + " [0-9]*/[0-9]*"
 
 
-# Seek for options
-# An option is either a call or a put with an expiration date and a strike price
-# Example: TSLA 2500C 08/28 -> Tesla call with a 2500 strike price expiring on 28 August
-def option_screener(ticker_data_list):
-    calls = []
-    puts = []
-    for ticker_data in ticker_data_list:
-        ticker = ticker_data.ticker
-        call_regex = create_regex(ticker, "C")
-        put_regex = create_regex(ticker, "P")
+# Search for calls in the given text
+def call_screener(ticker, text):
+    call_regex = create_regex(ticker, "C")
+    return search_option(call_regex, text)
 
-        for submission in ticker_data.submissions:
-            call = search_option(call_regex, submission.selftext)
-            put = search_option(put_regex, submission.selftext)
 
-            if call is not None:
-                calls.append(call)
-
-            if put is not None:
-                puts.append(put)
-
-            call = search_option(call_regex, submission.title)
-            put = search_option(put_regex, submission.title)
-
-            if call is not None:
-                calls.append(call)
-
-            if put is not None:
-                puts.append(put)
-
-        for comment in ticker_data.comments:
-            call = search_option(call_regex, comment.body)
-            put = search_option(put_regex, comment.body)
-
-            if call is not None:
-                calls.append(call)
-
-            if put is not None:
-                puts.append(put)
-
-    print("Calls:")
-    for call in calls:
-        print(call)
-
-    print("Puts:")
-    for put in puts:
-        print(put)
+# Search for puts in the given text
+def put_screener(ticker, text):
+    put_regex = create_regex(ticker, "P")
+    return search_option(put_regex, text)
 
 
 class Analyser:
@@ -170,9 +183,6 @@ class Analyser:
 
         # Analyse data
         analyse_data(ticker_data_list)
-
-        # Search for options
-        option_screener(ticker_data_list)
 
 
 if __name__ == "__main__":
