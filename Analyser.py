@@ -41,9 +41,7 @@ def update_lexicon():
         'put': -3.0,
         'bear': -3.0,
     }
-
     SIA = SentimentIntensityAnalyzer()
-
     SIA.lexicon.update(new_words)
 
 
